@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brainrot Video Generator</title>
+</head>
+<body>
+    <h1>Brainrot TikTok Video Creator</h1>
+    <p>Enter a prompt to generate a story, audio, and video:</p>
+    <input type="text" id="prompt" placeholder="Write your prompt here..." style="width: 400px;">
+    <button onclick="generateVideo()">Generate Video</button>
+
+    <div id="status"></div>
+    <div id="download"></div>
+
+    <script>
+        async function generateVideo() {
+            const prompt = document.getElementById("prompt").value.trim();
+            if (!prompt) {
+                alert("Please enter a prompt!");
+                return;
+            }
+
+            document.getElementById("status").innerText = "Generating your video... please wait.";
+
+            try {
+                const response = await fetch("/generate", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json"
+                    },
+                    body: JSON.stringify({ prompt })
+                });
+
+                const data = await response.json();
+                if (response.ok) {
+                    document.getElementById("status").innerText = "Your video is ready!";
+                    document.getElementById("download").innerHTML = `
+                        <a href="${data.video_url}" download="my_video.mp4">Download Video</a>
+                    `;
+                } else {
+                    document.getElementById("status").innerText = `Error: ${data.error}`;
+                }
+            } catch (err) {
+                document.getElementById("status").innerText = `Error: ${err.message}`;
+            }
+        }
+    </script>
+</body>
+</html>

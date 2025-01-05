@@ -43,6 +43,7 @@ def generate_audio(text, output_file="content\output_audio.mp3"):
     else:
         raise Exception(f"Failed to generate audio: {response.status_code} - {response.text}")
 
-# Example usage (uncomment for testing)
-text = input("Enter the text to convert to audio: ")
-generate_audio(text)
+# Prevent automatic execution when imported
+if __name__ == "__main__":
+    text = input("Enter the text to convert to audio: ")
+    generate_audio(text)
