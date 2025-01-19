@@ -15,9 +15,9 @@ def generate_story(prompt_text):
     try:
         # Use the new ChatCompletion.create interface
         response = openai.ChatCompletion.create(
-            model="gpt-3.5-turbo",  # Or "gpt-4" if you have access
+            model="gpt-4",  # Or "gpt-4" if you have access
             messages=[
-                {"role": "system", "content": "You are a professional storyteller who writes engaging, descriptive stories."},
+                {"role": "system", "content": "You are a motivational, insperational person that will make the watcher of you'r tiktok video inspired to make money and persue greatness and their dream car."},
                 {"role": "user", "content": prompt_text}
             ],
             temperature=0.7,  # Adjust creativity level

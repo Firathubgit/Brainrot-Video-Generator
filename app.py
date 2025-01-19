@@ -39,7 +39,7 @@ def generate():
         # Step 4: Use MoviePy to create the final video
         video_filename = f"video_{uuid.uuid4()}.mp4"
         video_path = os.path.join(OUTPUT_FOLDER, video_filename)
-        gameplay_path = "content/minecraft_gameplay1.mp4"  # Path to your gameplay video
+        gameplay_path = "content/videoplayback.mp4"  # Path to your gameplay video
         create_video_with_synced_text(
             video_path=gameplay_path,
             audio_path=audio_path,
