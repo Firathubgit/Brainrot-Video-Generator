@@ -17,7 +17,7 @@ def generate_story(prompt_text):
         response = openai.ChatCompletion.create(
             model="gpt-4",  # Or "gpt-4" if you have access
             messages=[
-                {"role": "system", "content": "You are a motivational, insperational person that will make the watcher of you'r tiktok video inspired to make money and persue greatness and their dream car."},
+                {"role": "system", "content": "you are a tiktok video creator. Your videos have content playing behind you and you job is simply creating the story in a redy to voice over state. none off this voiceover, background set detail describing. Just pure script off what the voice over is going to say. The video behind you is not going to chnage under no surcumstance so you are just going to output the script. The theme is probmt based and it can be whatever. Countinues story, no numbers throughout the script which clariyfies parts."},
                 {"role": "user", "content": prompt_text}
             ],
             temperature=0.7,  # Adjust creativity level

@@ -1,9 +1,10 @@
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Brainrot Video Generator</title>
-    <link rel="stylesheet" href="static\style.css">
+    <link rel="stylesheet" href="static/style.css">
 </head>
 <body>
     <div class="container">
@@ -15,6 +16,22 @@
         <main>
             <div class="input-container">
                 <input type="text" id="prompt" placeholder="Type your brainrot here...">
+
+                <!-- Video selection thumbnails -->
+                <div class="video-selection">
+                    <!-- Video Option 1: Car Drift -->
+                    <div class="video-option" data-value="videoplayback.mp4" onclick="selectVideo(this)">
+                        <img src="static/previews/BmwDrift.jpg" alt="Car Drift">
+                        <p>Car Drift</p>
+                    </div>
+
+                    <!-- Video Option 2: Minecraft Gameplay -->
+                    <div class="video-option" data-value="minecraft_gameplay2.mp4" onclick="selectVideo(this)">
+                        <img src="static/previews/MinecraftParkour.png" alt="Minecraft Gameplay">
+                        <p>Minecraft Gameplay</p>
+                    </div>
+                </div>
+
                 <button onclick="generateVideo()">Generate 🎥</button>
             </div>
 
@@ -26,15 +43,39 @@
     </div>
 
     <script>
+        let selectedVideo = null;
+
+        // Highlight the selected video
+        function selectVideo(element) {
+            // Remove 'selected' class from all options
+            document.querySelectorAll('.video-option').forEach(option => {
+                option.classList.remove('selected');
+            });
+
+            // Add 'selected' class to the clicked option
+            element.classList.add('selected');
+
+            // Store the selected video value
+            selectedVideo = element.getAttribute('data-value');
+        }
+
+        // Send video generation request to the backend
         async function generateVideo() {
             const prompt = document.getElementById("prompt").value.trim();
             const spinner = document.getElementById("loading-spinner");
 
+            // Input validations
             if (!prompt) {
                 alert("Please enter a prompt!");
                 return;
             }
 
+            if (!selectedVideo) {
+                alert("Please select a background video!");
+                return;
+            }
+
+            // Show loading status
             document.getElementById("status").innerText = "Generating your masterpiece... Please wait.";
             spinner.classList.remove("hidden");
 
@@ -44,11 +85,12 @@
                     headers: {
                         "Content-Type": "application/json"
                     },
-                    body: JSON.stringify({ prompt })
+                    body: JSON.stringify({ prompt, video_choice: selectedVideo })
                 });
 
                 const data = await response.json();
                 if (response.ok) {
+                    // Show download link if successful
                     document.getElementById("status").innerText = "Done! Ready for download.";
                     document.getElementById("download").innerHTML = `
                         <a href="${data.video_url}" download="brainrot_video.mp4" class="download-btn">Download Video 🎬</a>
