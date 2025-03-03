@@ -8,24 +8,23 @@ from moviepy.video.compositing.CompositeVideoClip import CompositeVideoClip
 # Set the ImageMagick binary explicitly (update this path on your own machine)
 os.environ["IMAGEMAGICK_BINARY"] = r"C:\Program Files\ImageMagick-7.1.1-Q16-HDRI\magick.exe"
 
+# Define font name or path (if it's installed)
+CUSTOM_FONT = "Winter_Minie"  # Use installed font
+# CUSTOM_FONT = "C:/path/to/Winter_Minie.ttf"  # Uncomment if using a custom font file
+
 
 def transcribe_audio_with_whisper(audio_path):
     """
     Transcribes the audio file using Whisper and returns *word-level* timestamps.
-    Args:
-        audio_path (str): Path to the audio file.
-    Returns:
-        list of dict: Each dict has { 'text', 'start', 'end' } for individual words.
     """
     print("Transcribing audio with Whisper...")
     model = whisper.load_model("base")  # Choose model size: "tiny", "base", "small", "medium", or "large"
-    # Enable word-level timestamps
+    
     result = model.transcribe(audio_path, word_timestamps=True)
 
     # Collect word-by-word segments
     word_segments = []
     for segment in result["segments"]:
-        # Each segment might contain multiple words
         for w in segment["words"]:
             word_segments.append({
                 "text": w["word"],
@@ -40,22 +39,15 @@ def transcribe_audio_with_whisper(audio_path):
 def group_words_into_chunks(word_segments, chunk_size=1):
     """
     Groups words into chunks of 'chunk_size'.
-    If chunk_size=1, this returns purely word-level segments.
-    If chunk_size=2, each segment has two words, etc.
     """
     if chunk_size < 1:
         raise ValueError("chunk_size must be >= 1")
 
     grouped_segments = []
     for i in range(0, len(word_segments), chunk_size):
-        chunk = word_segments[i : i + chunk_size]
-
-        # Combine the words' text
+        chunk = word_segments[i: i + chunk_size]
         combined_text = " ".join(w["text"] for w in chunk).strip()
-
-        # The start time for this chunk is the start of the first word
         start_time = chunk[0]["start"]
-        # The end time for this chunk is the end of the last word
         end_time = chunk[-1]["end"]
 
         grouped_segments.append({
@@ -70,11 +62,6 @@ def group_words_into_chunks(word_segments, chunk_size=1):
 def create_video_with_synced_text(video_path, audio_path, text_segments, output_path="final_video.mp4"):
     """
     Creates a video with text synchronized to the audio using Whisper-generated timestamps.
-    Args:
-        video_path (str): Path to the base video.
-        audio_path (str): Path to the audio file.
-        text_segments (list): List of text segments with timestamps { text, start, end }.
-        output_path (str): Path to save the final video.
     """
     # ---1. Load Video & Audio---
     if not os.path.exists(video_path):
@@ -86,8 +73,6 @@ def create_video_with_synced_text(video_path, audio_path, text_segments, output_
 
     video = VideoFileClip(video_path)
     audio = AudioFileClip(audio_path)
-
-    # Attach audio to video
     video_with_audio = video.set_audio(audio)
 
     # ---2. Create Text Clips---
@@ -98,6 +83,7 @@ def create_video_with_synced_text(video_path, audio_path, text_segments, output_
                 TextClip(
                     txt=segment["text"],
                     fontsize=50,
+                    font=CUSTOM_FONT,  # Apply custom font
                     color="white",
                     method="label"
                 )
@@ -125,29 +111,21 @@ def create_video_with_synced_text(video_path, audio_path, text_segments, output_
 def main():
     """
     Main function:
-    1) Prompts user for video path and audio path.
-    2) Runs Whisper to get word-level timestamps.
-    3) Optionally groups words into larger chunks if desired.
-    4) Generates the final video with synced text.
+    - Prompts user for video path and audio path.
+    - Runs Whisper to get word-level timestamps.
+    - Optionally groups words into larger chunks if desired.
+    - Generates the final video with synced text.
     """
     video_path = input("Enter the path to your video file: ")
     audio_path = input("Enter the path to your audio file: ")
 
-    # Let the user decide how many words per chunk
-    # chunk_size = 1 means purely word-by-word.
-    # chunk_size = 2 or 3 means 2 or 3 words at a time, etc.
     try:
         chunk_size = int(input("Enter how many words per text clip (1 for single words): "))
     except ValueError:
         chunk_size = 1
 
-    # 1) Run Whisper transcription (word-level)
     word_segments = transcribe_audio_with_whisper(audio_path)
-
-    # 2) Group words into chunks (if chunk_size=1, that means purely single words)
     text_segments = group_words_into_chunks(word_segments, chunk_size=chunk_size)
-
-    # 3) Generate the video
     create_video_with_synced_text(video_path, audio_path, text_segments)
 
 
